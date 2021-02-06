@@ -1,0 +1,10 @@
+cradle:
+  cabal:
+    - path: "src-lib"
+      component: "lib:svaders"
+
+    - path: "src-exe/Main.hs"
+      component: "svaders:exe:svaders"
+
+    - path: "test"
+      component: "svaders:test:svaders-test"
