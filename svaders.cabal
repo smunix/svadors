@@ -36,7 +36,7 @@ library
   hs-source-dirs:      src-lib
   default-language:    Haskell2010
 
-executable svaders-exe
+executable svaders
   main-is:             Main.hs
   -- other-modules:
   -- other-extensions:
