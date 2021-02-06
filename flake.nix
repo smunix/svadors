@@ -13,11 +13,11 @@
       with haskell.lib;
       rec {
         packages = flattenTree {
-          svaders =
-            fixConfigFlags (overrideCabal (callCabal2nix "svaders" ./. {}) (_: {
-              librarySystemDepends = [ libGL libGLU ];
-              doHaddock = false;
-            }));
+          svaders = overrideCabal (callCabal2nix "svaders" ./. {}) (_: {
+            librarySystemDepends = [ libGL libGLU ];
+            doHaddock = false;
+            doCheck = false;
+          });
         };
         defaultPackage = packages.svaders;
       });
