@@ -21,14 +21,21 @@ library
                      , Render
                      , Window
                      , Config
+                     , Model
   -- other-modules:
   -- other-extensions:
   default-extensions: BlockArguments
+                      BangPatterns
                       GADTs
                       LambdaCase                        
                       TemplateHaskell
                       OverloadedStrings
                       RankNTypes
+                      RecordWildCards
+                      ScopedTypeVariables                                                    
+                      TypeApplications
+                      TypeOperators
+                      ViewPatterns
                         
   build-depends:       base ^>=4.14.1.0
                      , gloss

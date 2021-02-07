@@ -4,20 +4,20 @@ import qualified Assets as A
 import qualified Config as Cfg
 import Graphics.Gloss (play)
 import Lens.Micro.Platform
+import Model (events, initial, render, update)
 
 someFunc :: IO ()
 someFunc = do
-  print Cfg.def
+  print Cfg.config
   putStrLn "someFunc"
-  let assets :: A.Assets
-      assets = error "nyi"
-      cfg :: Cfg.Config
-      cfg = Cfg.def
+  let cfg :: Cfg.Config
+      cfg = Cfg.config
+  assets <- A.assets Cfg.config
   play
     (cfg ^. Cfg.window)
     (cfg ^. Cfg.background)
     (cfg ^. Cfg.fps)
-    ()
-    (\_ -> mempty)
-    (\e w -> w)
-    (\dt w -> w)
+    (initial cfg)
+    (render cfg assets)
+    (events cfg)
+    (update cfg)
