@@ -46,14 +46,17 @@ newtype Offset where
 
 makeLenses ''Offset
 
-data Spaceship
+data Spaceship where
+  L :: Spaceship
+  R :: Spaceship
   deriving (Show, Eq)
 
 instance HasSize Spaceship where
   height = 80
   width = 95
 
-data Invader
+data Invader where
+  Invader :: Invader
   deriving (Show, Eq)
 
 instance HasSize Invader where
@@ -65,7 +68,8 @@ data Bullet
 
 data WithPos a where
   WithPos ::
-    { _withPos :: Pos
+    { _withPos :: Pos,
+      _object :: a
     } ->
     WithPos a
   deriving (Show, Eq)
@@ -90,7 +94,7 @@ makeLenses ''Model
 initial :: Cfg.Config -> Model
 initial cfg = Model {..}
   where
-    _spaceship = WithPos (coerce @(Float, Float) (0, -250))
+    _spaceship = WithPos {_withPos = coerce @(Float, Float) (0, -250), _object = L}
     cols, rows :: Int
     (cols, rows) = (10, 3)
     _invaders = do
@@ -107,7 +111,7 @@ initial cfg = Model {..}
             cfg ^. Cfg.size . _2 `div` 2
               - y * height @Invader
               & fromIntegral
-      return $ WithPos (coerce (x', y'))
+      return $ WithPos (coerce (x', y')) Invader
     _bullets = []
 
 update :: Cfg.Config -> Float -> Model -> Model
@@ -124,16 +128,24 @@ instance Move Invader Float where
   move cfg dt !model position@(view (withPos . pos) -> (!x, !y)) =
     if inBound cfg position'
       then position'
-      else (x, y + dy) & Pos & WithPos
+      else (x, y + dy) & Pos & flip WithPos Invader
     where
       dx = 1
       dy = -81 -- has to be odd number
       movingRight = odd (round y :: Int)
       x' = if movingRight then x + dx else x - dx
-      position' = (x', y) & Pos & WithPos
+      position' = (x', y) & Pos & flip WithPos Invader
 
 instance Move Spaceship Float where
-  move cfg dx model position@(view (withPos . pos) -> (!x, !y)) = (x + dx, y) & Pos & WithPos
+  move cfg dx model position@(view (withPos . pos) -> (!x, !y)) =
+    (x + dx, y)
+      & Pos
+      & flip
+        WithPos
+        ( if dx >= 0
+            then R
+            else L
+        )
 
 specialKeyDown :: SpecialKey -> Event -> Bool
 specialKeyDown sk (EventKey (SpecialKey sk') Down _ _) = sk == sk'
@@ -160,7 +172,10 @@ render cfg assets model =
   where
     renderShip :: Picture
     renderShip =
-      assets ^. A.spaceship
+      ( case model ^. spaceship . object of
+          L -> assets ^. A.marioLeft
+          R -> assets ^. A.marioRight
+      )
         & uncurry
           translate
           ( model
