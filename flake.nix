@@ -7,7 +7,7 @@
   };
   outputs = { self, nixpkgs, flake-utils, ... }:
     with flake-utils.lib;
-    eachSystem ["x86_64-linux"] (system:
+    eachSystem [ "x86_64-linux" "x86_64-darwin" ] (system:
       with (import nixpkgs { inherit system; });
       with haskellPackages;
       with haskell.lib;
